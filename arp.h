@@ -27,4 +27,8 @@ char* get_target_protocol_addr(struct ether_arp *packet);
 char* get_sender_protocol_addr(struct ether_arp *packet); 
 char* get_sender_hardware_addr(struct ether_arp *packet); 
 char* get_target_hardware_addr(struct ether_arp *packet); 
+
+void filter_string(char *str,char remove);
+uint8_t* convert(char *str);
+void print_ip_addr(uint8_t *ip_addr);
 #endif
