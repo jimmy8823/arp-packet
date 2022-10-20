@@ -29,11 +29,10 @@
  * You have to open two socket to handle this program.
  * One for input , the other for output.
  */
-
 int main(int argc, char* argv[])
 {
 	int sockfd_recv = 0, sockfd_send = 0;
-	int op = 0,listen=0,send=0,all=0,motion=0;
+	int op = 0,motion=0;
 	char *query_target;
 	uint8_t *filter_ip_addr;
 	char *fake_mac_addr = NULL;
@@ -62,7 +61,7 @@ int main(int argc, char* argv[])
 				if(strcmp(optarg,"-a")==0){
 					//printf("listen all");
 					motion = 1;
-				}else{
+				}else{ 
 					//printf("filter_ip_addr :");
 					filter_ip_addr = convert(optarg);
 					print_ip_addr(filter_ip_addr);
@@ -76,7 +75,7 @@ int main(int argc, char* argv[])
 					print_usage();
 				}
 				break;
-			case '?':
+			case '?': //arp spoofing
 				motion = 4;
 				if(fake_mac_addr==NULL){
 					//fake_mac_addr = malloc(6);
@@ -142,7 +141,7 @@ int main(int argc, char* argv[])
 		close(sockfd_recv);
 	}
 		
-	if(motion == 3){ //send arp packet
+	if(motion == 3){ //send arp packet and wait the reply
 		struct ether_header *header;
 		struct ether_arp *arp_p;
 		char packet[Packet_Len];//packet len 42
@@ -202,6 +201,28 @@ int main(int argc, char* argv[])
 		}
 		free(packet);
 		close(sockfd_send);
+		if((sockfd_recv = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0) //open receive socket
+		{
+			perror("open recv socket error");
+			exit(1);
+		}
+		char buffer[Packet_Len];
+		struct sockaddr from;
+		printf("------------------------waiting arp reply ------------------------\n");
+		while(1){
+			memset(buffer,'\0',Packet_Len);
+			recvfrom(sockfd_recv,buffer,Packet_Len,0,&from,sizeof(from)); //get packet and store in buffer
+			header = buffer; // header point to packet start
+			arp_p = buffer + Ether_Hdr_Len; // arp point to arp start
+			if(ntohs(header->ether_type)==0x806){// capture arp packet
+				if(strcmp(arp_p->arp.spa,query_target)==0){//sender ip same with query target
+					printf("MAC ADDRESS of %s is %02x:%02x:%02x:%02x:%02x:%02x\n",query_target,
+					arp_p->arp.sha[0],arp_p->arp.sha[1],arp_p->arp.sha[2],
+					arp_p->arp.sha[3],arp_p->arp.sha[4],arp_p->arp.sha[5]);
+				}
+			}
+		}
+
 	}
 	
 	if(motion==4){//arp spoof
