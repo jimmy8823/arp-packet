@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 //You can fill the following functions or add other functions if needed. If not, you needn't write anything in them.  
 void set_hard_type(struct ether_arp *packet, unsigned short int type)
@@ -33,37 +34,69 @@ void set_sender_hardware_addr(struct ether_arp *packet, char *address)
 {
 	memcpy(packet->arp_sha , address, ETH_ALEN);
 }
-void set_sender_protocol_addr(struct ether_arp *packet, char *address)
+void set_sender_protocol_addr(struct ether_arp *packet, struct in_addr address)
 {
-	struct in_addr myip;
-	inet_pton(AF_INET,address,myip);
-	memcpy(packet->arp_spa , &myip, 4);
+	//struct in_addr myip;
+	//inet_pton(AF_INET,address,myip);
+	memcpy(packet->arp_spa , &address ,4);
 }
 void set_target_hardware_addr(struct ether_arp *packet, char *address)
 {
 	memcpy(packet->arp_tha , address, ETH_ALEN);
 }
-void set_target_protocol_addr(struct ether_arp *packet, char *address)
+void set_target_protocol_addr(struct ether_arp *packet, struct in_addr address)
 {
-	struct in_addr dst_ip;
-	inet_pton(AF_INET,address,dst_ip);
-	memcpy(packet->arp_tpa , &dst_ip, 4);
+	//struct in_addr dst_ip;
+	//inet_pton(AF_INET,address,dst_ip);
+	memcpy(packet->arp_tpa , &address, 4);
 }
 
 char* get_target_protocol_addr(struct ether_arp *packet)
 {
+	char *tmp = malloc(16);
+	sprintf(tmp,"%d.%d.%d.%d",
+		packet->arp_tpa[0],
+		packet->arp_tpa[1],
+		packet->arp_tpa[2],
+		packet->arp_tpa[3]);
+	return tmp;
 	// if you use malloc, remember to free it.
 }
 char* get_sender_protocol_addr(struct ether_arp *packet)
 {
+	char *tmp = malloc(16);
+	sprintf(tmp,"%d.%d.%d.%d",
+		packet->arp_spa[0],
+		packet->arp_spa[1],
+		packet->arp_spa[2],
+		packet->arp_spa[3]);
+	return tmp;
 	// if you use malloc, remember to free it.
 }
 char* get_sender_hardware_addr(struct ether_arp *packet)
 {
+	char *tmp = malloc(18);
+	sprintf(tmp,"%x.%x.%x.%x.%x.%x",
+		packet->arp_sha[0],
+		packet->arp_sha[1],
+		packet->arp_sha[2],
+		packet->arp_sha[3],
+		packet->arp_sha[4],
+		packet->arp_sha[5]);
+	return tmp;
 	// if you use malloc, remember to free it.
 }
 char* get_target_hardware_addr(struct ether_arp *packet)
 {
+	char *tmp = malloc(18);
+	sprintf(tmp,"%x.%x.%x.%x.%x.%x",
+		packet->arp_tha[0],
+		packet->arp_tha[1],
+		packet->arp_tha[2],
+		packet->arp_tha[3],
+		packet->arp_tha[4],
+		packet->arp_tha[5]);
+	return tmp;
 	// if you use malloc, remember to free it.
 }
 
