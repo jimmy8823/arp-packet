@@ -12,11 +12,11 @@
 //You can fill the following functions or add other functions if needed. If not, you needn't write anything in them.  
 void set_hard_type(struct ether_arp *packet, unsigned short int type)
 {
-	packet->arp_hrd = htons(type);
+	packet->arp_hrd = htons(ARPHRD_ETHER);
 }
 void set_prot_type(struct ether_arp *packet, unsigned short int type)
 {
-	packet->arp_pro = htons(type);
+	packet->arp_pro = htons(0x800);
 }
 void set_hard_size(struct ether_arp *packet, unsigned char size)
 {
@@ -26,7 +26,7 @@ void set_prot_size(struct ether_arp *packet, unsigned char size)
 {
 	packet->arp_pln = size;
 }
-void set_op_code(struct ether_arp *packet, short int code)
+void set_op_code(struct ether_arp *packet,unsigned short int code)
 {
 	packet->arp_op = htons(code);
 }
@@ -34,21 +34,21 @@ void set_sender_hardware_addr(struct ether_arp *packet, char *address)
 {
 	memcpy(packet->arp_sha , address, ETH_ALEN);
 }
-void set_sender_protocol_addr(struct ether_arp *packet, struct in_addr address)
+void set_sender_protocol_addr(struct ether_arp *packet, char *address)
 {
-	//struct in_addr myip;
-	//inet_pton(AF_INET,address,myip);
-	memcpy(packet->arp_spa , &address ,4);
+	struct in_addr myip;
+	inet_pton(AF_INET,address,&myip);
+	memcpy(packet->arp_spa , &myip ,4);
 }
 void set_target_hardware_addr(struct ether_arp *packet, char *address)
 {
 	memcpy(packet->arp_tha , address, ETH_ALEN);
 }
-void set_target_protocol_addr(struct ether_arp *packet, struct in_addr address)
+void set_target_protocol_addr(struct ether_arp *packet, char *address)
 {
-	//struct in_addr dst_ip;
-	//inet_pton(AF_INET,address,dst_ip);
-	memcpy(packet->arp_tpa , &address, 4);
+	struct in_addr dst_ip;
+	inet_pton(AF_INET,address,&dst_ip);
+	memcpy(packet->arp_tpa , &dst_ip, 4);
 }
 
 char* get_target_protocol_addr(struct ether_arp *packet)
@@ -104,7 +104,7 @@ void print_usage()
 {
 	printf("./arp -l -a\n");
 	printf("./arp -l <filter_ip_address>\n");
-	printf("./arp -l <query_ip_address>\n");
+	printf("./arp -q <query_ip_address>\n");
 	printf("./arp <fake_mac_address> <target_ip_address>\n");
 }
 
