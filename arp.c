@@ -76,7 +76,7 @@ char* get_sender_protocol_addr(struct ether_arp *packet)
 char* get_sender_hardware_addr(struct ether_arp *packet)
 {
 	char *tmp = malloc(18);
-	sprintf(tmp,"%x.%x.%x.%x.%x.%x",
+	sprintf(tmp,"%02x:%02x:%02x:%02x:%02x:%02x",
 		packet->arp_sha[0],
 		packet->arp_sha[1],
 		packet->arp_sha[2],
@@ -89,7 +89,7 @@ char* get_sender_hardware_addr(struct ether_arp *packet)
 char* get_target_hardware_addr(struct ether_arp *packet)
 {
 	char *tmp = malloc(18);
-	sprintf(tmp,"%x.%x.%x.%x.%x.%x",
+	sprintf(tmp,"%02x:%02x:%02x:%02x:%02x:%02x",
 		packet->arp_tha[0],
 		packet->arp_tha[1],
 		packet->arp_tha[2],
